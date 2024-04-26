@@ -37,6 +37,11 @@ timezone_df = pd.DataFrame(df['Timezone'].value_counts()).reset_index().rename(c
 
 print(timezone_df)
 
+states = gpd.read_file('Shapefiles/States_shapefile.shp')
+geometry = [Point(xy) for xy in zip(df['Start_Lng'], df['Start_Lat'])]
+geo_df = gpd.GeoDataFrame(df, geometry=geometry)
+
+
 # 美國不同時區的事故案例百分比（2016-2020）
 def visualize_accident_cases_by_timezone_percentage():
     fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
@@ -74,5 +79,33 @@ def visualize_accident_cases_by_timezone_percentage():
               labelcolor=[clrs[0], 'grey'], edgecolor='white');
     plt.show()
 
+# 美國不同時區道路事故視覺化（2016-2020）
+def visualization_of_road_accidents_for_different_timezones():
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.set_xlim([-125, -65])
+    ax.set_ylim([22, 55])
+    states.boundary.plot(ax=ax, color='black');
 
-visualize_accident_cases_by_timezone_percentage()
+    colors = ['#00db49', '#ff5e29', '#88ff33', '#fffb29']
+    # 4132
+    count = 0
+    for i in list(timezone_df.Timezone):
+        geo_df[geo_df['Timezone'] == i].plot(ax=ax, markersize=1, color=colors[count], marker='o', label=i);
+        count += 1
+
+    plt.legend(markerscale=10., prop={'size': 15}, edgecolor='white', title="Timezones", title_fontsize=15,
+               loc='lower right');
+
+    for i in ['bottom', 'top', 'left', 'right']:
+        side = ax.spines[i]
+        side.set_visible(False)
+
+    plt.tick_params(top=False, bottom=False, left=False, right=False,
+                    labelleft=False, labelbottom=False)
+
+    plt.title('\nVisualization of Road Accidents \nfor different Timezones in US (2016-2020)', size=20, color='grey');
+    plt.show()
+
+# visualize_accident_cases_by_timezone_percentage()
+
+visualization_of_road_accidents_for_different_timezones()
