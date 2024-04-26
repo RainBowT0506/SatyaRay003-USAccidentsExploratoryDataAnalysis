@@ -200,6 +200,54 @@ def visualize_top_accident_prone_states_US():
     plt.title('\nVisualization of Top 10 Accident Prone States in US (2016-2020)', size=20, color='grey');
     plt.show()
 
+# 美國事故案件最少的 10 個州（2016-2020 年）
+def visualize_top_10_least_accident_prone_states_US():
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=80)
+
+    cmap = cm.get_cmap('cool', 10)
+    clrs = [matplotlib.colors.rgb2hex(cmap(i)) for i in range(cmap.N)]
+
+    ax = sns.barplot(y=state_df['Cases'].tail(10), x=state_df['State'].tail(10), palette='cool')
+    ax1 = ax.twinx()
+    sns.lineplot(data=state_df[-10:], marker='o', x='State', y='Cases', color='white', alpha=.8)
+
+    total = df.shape[0]
+    for i in ax.patches:
+        ax.text(i.get_x() - 0.1, i.get_height() + 100, \
+                '  {:,d}\n({}%) '.format(int(i.get_height()), round(100 * i.get_height() / total, 2)), fontsize=15,
+                color='black')
+
+    ax.set(ylim=(-50, 5000))
+    ax1.set(ylim=(-50, 6000))
+
+    plt.title('\nTop 10 States with least no. of \nAccident cases in US (2016-2020)\n', size=20, color='grey')
+    ax1.axes.yaxis.set_visible(False)
+    ax.set_xlabel('\nStates\n', fontsize=15, color='grey')
+    ax.set_ylabel('\nAccident Cases\n', fontsize=15, color='grey')
+
+    for i in ['top', 'right']:
+        side = ax.spines[i]
+        side.set_visible(False)
+        side1 = ax1.spines[i]
+        side1.set_visible(False)
+
+    ax.set_axisbelow(True)
+    ax.grid(color='#b2d6c7', linewidth=1, axis='y', alpha=.3)
+
+    ax.spines['bottom'].set_bounds(0.005, 9)
+    ax.spines['left'].set_bounds(0, 5000)
+    ax1.spines['bottom'].set_bounds(0.005, 9)
+    ax1.spines['left'].set_bounds(0, 5000)
+    ax.tick_params(axis='y', which='major', labelsize=11)
+    ax.tick_params(axis='x', which='major', labelsize=11, rotation=15)
+
+    MI = mpatches.Patch(color=clrs[-1], label='State with Minimum\n no. of Road Accidents')
+    ax.legend(handles=[MI], prop={'size': 10.5}, loc='best', borderpad=1,
+              labelcolor=clrs[-1], edgecolor='white')
+    plt.show()
+
 # top_10_states_accident_cases_visualization()
 
-visualize_top_accident_prone_states_US()
+# visualize_top_accident_prone_states_US()
+
+visualize_top_10_least_accident_prone_states_US()
