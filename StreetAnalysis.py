@@ -93,4 +93,24 @@ def visualize_top_10_accident_prone_streets():
     plt.show()
 
 
-visualize_top_10_accident_prone_streets()
+def street_cases_percentage(val, operator):
+    if operator == '=':
+        val = street_df[street_df['Cases'] == val].shape[0]
+    elif operator == '>':
+        val = street_df[street_df['Cases'] > val].shape[0]
+    elif operator == '<':
+        val = street_df[street_df['Cases'] < val].shape[0]
+    print('{:,d} Streets, {}%'.format(val, round(val * 100 / street_df.shape[0], 2)))
+
+
+def street_cases_percentage_analysis():
+    street_cases_percentage(1, '=')
+    street_cases_percentage(100, '<')
+    street_cases_percentage(1000, '<')
+    street_cases_percentage(1000, '>')
+    street_cases_percentage(5000, '>')
+
+
+# visualize_top_10_accident_prone_streets()
+
+street_cases_percentage_analysis()
