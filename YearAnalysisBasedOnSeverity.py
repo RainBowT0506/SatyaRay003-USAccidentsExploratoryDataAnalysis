@@ -42,6 +42,7 @@ states = gpd.read_file('Shapefiles/States_shapefile.shp')
 geometry = [Point(xy) for xy in zip(df['Start_Lng'], df['Start_Lat'])]
 geo_df = gpd.GeoDataFrame(df, geometry=geometry)
 accident_severity_df = geo_df.groupby(['Year', 'Severity']).size().unstack()
+year_df = pd.DataFrame(df.Start_Time.dt.year.value_counts()).reset_index().rename(columns={'Start_Time':'Year', 'count':'Cases'}).sort_values(by='Cases', ascending=True)
 
 print("geo_df")
 print(geo_df.columns)
@@ -100,4 +101,54 @@ def visualize_severity_percentage():
 
     plt.show()
 
-visualize_severity_percentage()
+# 美國平均事故案例（2016-2020）
+def visualize_accident_rates():
+    year_df['accident/day'] = round(year_df['Cases'] / (5 * 365))
+    year_df['accident/hour'] = round(year_df['Cases'] / (5 * 365 * 24))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.5, 6), dpi=80)
+
+    count = 0
+    plots = ['accident/day', 'accident/hour']
+    plots_limit = [(-10, 500), (-0.5, 22.5)]
+    plots_bound = [(0, 500), (0, 20)]
+    plot_text = [60, 2.5]
+
+    colors = [['#ffb74b', '#ffd6a4', '#ceb1f2', '#a071ff', '#6f71f7'],
+              ['#cd7cf2', '#f27ec8', '#fa70b3', '#ff5e86', '#ff1732']]
+
+    for i in [ax1, ax2]:
+
+        sns.barplot(ax=i, y=year_df[plots[count]], x=year_df['Year'], palette=colors[count])
+
+        var = plots[count].split('/')[-1].capitalize()
+
+        for j in i.patches:
+            i.text(j.get_x() + 0.06, j.get_height() - plot_text[count], \
+                   str(int(j.get_height())) + '\nAccidents\nPer {}'.format(var), fontsize=8.5, color='white',
+                   weight='bold')
+
+        i.axes.set_ylim(plots_limit[count])
+        i.axes.set_ylabel('\nAccident Cases\n', fontsize=12, color='grey')
+        i.axes.set_xlabel('\nYears\n', fontsize=12, color='grey')
+        i.tick_params(axis='both', which='major', labelsize=10)
+
+        i.set_title('\nAverage Cases \nof Accident/{} in US (2016-2020)\n'.format(var), fontsize=15, color='grey')
+        i.spines['bottom'].set_bounds(0.005, 4)
+        i.spines['left'].set_bounds(plots_bound[count])
+
+        for k in ['top', 'right']:
+            side = i.spines[k]
+            side.set_visible(False)
+
+        i.set_axisbelow(True)
+        MA = mpatches.Patch(color=colors[count][-1], label='Year with Maximum\n no. of Road Accidents')
+        MI = mpatches.Patch(color=colors[count][0], label='Year with Minimum\n no. of Road Accidents')
+        i.legend(handles=[MA, MI], prop={'size': 10}, loc='best', borderpad=1,
+                 labelcolor=[colors[count][-1], colors[count][0]], edgecolor='white');
+        count += 1
+
+        plt.show()
+
+# visualize_severity_percentage()
+
+visualize_accident_rates()
