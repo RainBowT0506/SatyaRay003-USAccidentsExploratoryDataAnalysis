@@ -136,3 +136,8 @@ Feature_Bin_Plot(df, 'Humidity(%)', 'magma', Humidity_intervals, Humidity_labels
 Pressure_intervals, Pressure_labels = generate_intervals_labels('Pressure(in)', 6, 10)
 Feature_Bin_Plot(df, 'Pressure(in)', 'Paired', Pressure_intervals, Pressure_labels,
                  (12, 6), 14, (-20000, 1500000), [0.01, 10000], '\nPercentage of different Pressure range\n')
+
+# 不同風寒範圍的百分比
+Wind_Chill_intervals, Wind_Chill_labels = generate_intervals_labels('Wind_Chill(F)', 10, 20)
+Feature_Bin_Plot(df, 'Wind_Chill(F)', 'inferno', Wind_Chill_intervals, Wind_Chill_labels,
+                 (12, 6), 14, (-20000, 700000), [0.01, 10000], '\nPercentage of different Wind Chill range\n')
