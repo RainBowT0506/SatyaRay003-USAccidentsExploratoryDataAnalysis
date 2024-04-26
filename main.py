@@ -26,6 +26,7 @@ import geoplot
 from geopy.geocoders import Nominatim
 
 import warnings
+
 warnings.filterwarnings('ignore')
 
 # 讀取資料集並將其載入到 pandas 資料框中
@@ -46,6 +47,7 @@ df.End_Time = pd.to_datetime(df.End_Time, format='ISO8601', errors='coerce')
 city_df = pd.DataFrame(df['City'].value_counts()).reset_index().rename(columns={'count': 'Cases'})
 # 只保留 'Cases' 欄位
 top_10_cities = pd.DataFrame(city_df.head(10))
+
 
 def plot_top_accident_cities():
     fig, ax = plt.subplots(figsize=(12, 7), dpi=80)
@@ -86,11 +88,13 @@ def plot_top_accident_cities():
               labelcolor=clrs[0], edgecolor='white');
     plt.show()
 
+
 # 計算事故率或事故發生頻率
 def cal_accident_rate():
     hightest_cases = city_df.Cases[0]
     print(round(hightest_cases / 5))
     print(round(hightest_cases / (5 * 365)))
+
 
 def visualize_top_10_accident_cities_US():
     states = gpd.read_file('Shapefiles/States_shapefile.shp')
@@ -151,9 +155,30 @@ def visualize_top_10_accident_cities_US():
     plt.show()
 
 
+# 分析城市中的車禍案例數量的百分比。
+def city_cases_percentage(val, operator):
+    if operator == '<':
+        res = city_df[city_df['Cases'] < val].shape[0]
+    elif operator == '>':
+        res = city_df[city_df['Cases'] > val].shape[0]
+    elif operator == '=':
+        res = city_df[city_df['Cases'] == val].shape[0]
+    print(f'{res} Cities, {round(res * 100 / city_df.shape[0], 2)}%')
+
+# 分析城市中的車禍案例數量的百分比
+def city_cases_percentage_analysis():
+    city_cases_percentage(1, '=')
+    city_cases_percentage(100, '<')
+    city_cases_percentage(1000, '<')
+    city_cases_percentage(1000, '>')
+    city_cases_percentage(5000, '>')
+    city_cases_percentage(10000, '>')
+
 
 # plot_top_accident_cities(city_df)
 
 # cal_accident_rate(city_df)
 
-visualize_top_10_accident_cities_US()
+# visualize_top_10_accident_cities_US()
+
+# city_cases_percentage_analysis()
