@@ -146,3 +146,8 @@ Feature_Bin_Plot(df, 'Wind_Chill(F)', 'inferno', Wind_Chill_intervals, Wind_Chil
 Wind_Speed_intervals, Wind_Speed_labels = generate_intervals_labels('Wind_Speed(mph)', 10, 5)
 Feature_Bin_Plot(df, 'Wind_Speed(mph)', 'turbo',Wind_Speed_intervals, Wind_Speed_labels,
                  (12, 6), 14, (-20000, 900000), [0.01, 10000], '\nPercentage of different Wind Speed range\n')
+
+
+Visibility_intervals, Visibility_labels = generate_intervals_labels('Visibility(mi)', 12, 1)
+Feature_Bin_Plot(df, 'Visibility(mi)', 'prism', Visibility_intervals, Visibility_labels,
+                 (12, 6), 14, (-20000, 1900000), [0.01, 30000], '\nPercentage of different Visibility range\n')
