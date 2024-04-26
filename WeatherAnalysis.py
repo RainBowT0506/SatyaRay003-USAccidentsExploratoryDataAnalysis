@@ -147,7 +147,47 @@ Wind_Speed_intervals, Wind_Speed_labels = generate_intervals_labels('Wind_Speed(
 Feature_Bin_Plot(df, 'Wind_Speed(mph)', 'turbo',Wind_Speed_intervals, Wind_Speed_labels,
                  (12, 6), 14, (-20000, 900000), [0.01, 10000], '\nPercentage of different Wind Speed range\n')
 
-
+# 不同能見度範圍的百分比
 Visibility_intervals, Visibility_labels = generate_intervals_labels('Visibility(mi)', 12, 1)
 Feature_Bin_Plot(df, 'Visibility(mi)', 'prism', Visibility_intervals, Visibility_labels,
                  (12, 6), 14, (-20000, 1900000), [0.01, 30000], '\nPercentage of different Visibility range\n')
+
+
+# 美國不同天氣條件下的道路事故百分比（2016-2020）
+def visualize_weather_condition_impact():
+    weather_condition_df = pd.DataFrame(df.Weather_Condition.value_counts().head(10)).reset_index().rename(
+        columns={'count': 'Cases'})
+    fig, ax = plt.subplots(figsize=(10, 8), dpi=80)
+
+    cmap = cm.get_cmap('rainbow_r', 10)
+    clrs = [matplotlib.colors.rgb2hex(cmap(i)) for i in range(cmap.N)]
+
+    ax = sns.barplot(x=weather_condition_df['Cases'], y=weather_condition_df['Weather_Condition'], palette='rainbow_r')
+
+    total = df.shape[0]
+    for p in ax.patches:
+        plt.text(p.get_width() + 40000, p.get_y() + 0.4,
+                 '{:.2f}%'.format(p.get_width() * 100 / total), ha='center', va='center', fontsize=15, color='black',
+                 weight='bold')
+
+    plt.title('\nRoad Accident Percentage \nfor different Weather Condition in US (2016-2020)\n', size=20, color='grey')
+    plt.xlabel('\nAccident Cases\n', fontsize=15, color='grey')
+    plt.ylabel('\nWeather_Condition\n', fontsize=15, color='grey')
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=12)
+    plt.xlim(0, 600000)
+
+    for i in ['top', 'left', 'right']:
+        side = ax.spines[i]
+        side.set_visible(False)
+
+    ax.set_axisbelow(True)
+    ax.spines['bottom'].set_bounds(0, 600000)
+    ax.grid(color='#b2d6c7', linewidth=1, axis='y', alpha=.3)
+
+    MA = mpatches.Patch(color=clrs[0], label='Weather_Condition with Maximum\n no. of Road Accidents')
+    ax.legend(handles=[MA], prop={'size': 10.5}, loc='best', borderpad=1,
+              labelcolor=[clrs[0]], edgecolor='white');
+    plt.show()
+
+visualize_weather_condition_impact()
