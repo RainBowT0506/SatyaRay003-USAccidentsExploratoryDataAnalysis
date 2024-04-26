@@ -41,15 +41,13 @@ print('The Dataset Contains, Rows: {:,d} & Columns: {}'.format(df.shape[0], df.s
 df.Start_Time = pd.to_datetime(df.Start_Time, format='ISO8601', errors='coerce')
 df.End_Time = pd.to_datetime(df.End_Time, format='ISO8601', errors='coerce')
 
+# 建立城市及其相應事故案例的資料框
+# create a dataframe of city and their corresponding accident cases
+city_df = pd.DataFrame(df['City'].value_counts()).reset_index().rename(columns={'count': 'Cases'})
+# 只保留 'Cases' 欄位
+top_10_cities = pd.DataFrame(city_df.head(10))
 
 def plot_top_accident_cities():
-    # 建立城市及其相應事故案例的資料框
-    # create a dataframe of city and their corresponding accident cases
-    city_df = pd.DataFrame(df['City'].value_counts()).reset_index().rename(columns={'count': 'Cases'})
-
-    # 只保留 'Cases' 欄位
-    top_10_cities = pd.DataFrame(city_df.head(10))
-
     fig, ax = plt.subplots(figsize=(12, 7), dpi=80)
 
     cmap = cm.get_cmap('rainbow', 10)
@@ -88,12 +86,74 @@ def plot_top_accident_cities():
               labelcolor=clrs[0], edgecolor='white');
     plt.show()
 
+# 計算事故率或事故發生頻率
+def cal_accident_rate():
+    hightest_cases = city_df.Cases[0]
+    print(round(hightest_cases / 5))
+    print(round(hightest_cases / (5 * 365)))
 
-plot_top_accident_cities()
+def visualize_top_10_accident_cities_US():
+    states = gpd.read_file('Shapefiles/States_shapefile.shp')
+
+    def lat(city):
+        address = city
+        geolocator = Nominatim(user_agent="Your_Name")
+        location = geolocator.geocode(address)
+        return (location.latitude)
+
+    def lng(city):
+        address = city
+        geolocator = Nominatim(user_agent="Your_Name")
+        location = geolocator.geocode(address)
+        return (location.longitude)
+
+    # list of top 10 cities
+    top_ten_city_list = list(city_df.City.head(10))
+
+    top_ten_city_lat_dict = {}
+    top_ten_city_lng_dict = {}
+    for i in top_ten_city_list:
+        top_ten_city_lat_dict[i] = lat(i)
+        top_ten_city_lng_dict[i] = lng(i)
+
+    top_10_cities_df = df[df['City'].isin(list(top_10_cities.City))]
+
+    top_10_cities_df['New_Start_Lat'] = top_10_cities_df['City'].map(top_ten_city_lat_dict)
+    top_10_cities_df['New_Start_Lng'] = top_10_cities_df['City'].map(top_ten_city_lng_dict)
+
+    geometry_cities = [Point(xy) for xy in zip(top_10_cities_df['New_Start_Lng'], top_10_cities_df['New_Start_Lat'])]
+    geo_df_cities = gpd.GeoDataFrame(top_10_cities_df, geometry=geometry_cities)
+
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.set_xlim([-125, -65])
+    ax.set_ylim([22, 55])
+    states.boundary.plot(ax=ax, color='grey');
+
+    colors = ['#e6194B', '#f58231', '#ffe119', '#bfef45', '#3cb44b', '#aaffc3', '#42d4f4', '#4363d8', '#911eb4',
+              '#f032e6']
+    markersizes = [50 + (i * 20) for i in range(10)][::-1]
+    for i in range(10):
+        geo_df_cities[geo_df_cities['City'] == top_ten_city_list[i]].plot(ax=ax, markersize=markersizes[i],
+                                                                          color=colors[i], marker='o',
+                                                                          label=top_ten_city_list[i], alpha=0.7);
+
+    plt.legend(prop={'size': 13}, loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5), edgecolor='white', title="Cities",
+               title_fontsize=15);
+
+    for i in ['bottom', 'top', 'left', 'right']:
+        side = ax.spines[i]
+        side.set_visible(False)
+
+    plt.tick_params(top=False, bottom=False, left=False, right=False,
+                    labelleft=False, labelbottom=False)
+
+    plt.title('\nVisualization of Top 10 Accident Prone Cities in US (2016-2020)', size=20, color='grey');
+    plt.show()
 
 
-# top_5_cities = df.head(5)
-# print(top_5_cities)
-#
-# features = df.columns
-# print(features)
+
+# plot_top_accident_cities(city_df)
+
+# cal_accident_rate(city_df)
+
+visualize_top_10_accident_cities_US()
