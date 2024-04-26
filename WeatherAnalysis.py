@@ -32,10 +32,15 @@ warnings.filterwarnings('ignore')
 # 讀取資料集並將其載入到 pandas 資料框中
 # read & load the dataset into pandas dataframe
 df = pd.read_csv('small_data.csv', encoding='ISO-8859-1')
+df = df.dropna(subset=['Wind_Chill(F)'])
+
 # 將 'End_Time' 和 'Start_Time' 轉換為日期時間對象
 df['End_Time'] = pd.to_datetime(df['End_Time'])
 df['Start_Time'] = pd.to_datetime(df['Start_Time'])
-
+pd.set_option('display.max_columns', None)  # 顯示所有列
+pd.set_option('display.max_rows', None)     # 顯示所有行
+print(df.columns)
+print(df.head(10))
 
 def generate_intervals_labels(attribute, split, gap):
     var_min = min(df[attribute])
@@ -116,16 +121,18 @@ def Feature_Bin_Plot(dataframe, attribute, clrs, intervals, labels, fig_size, fo
     plt.show()
 
 
-temp_intervals, temp_labels = generate_intervals_labels('Temperature(F)', 9, 30)
-print(temp_intervals)
-print(temp_labels)
-
 # 不同溫度範圍的百分比
+temp_intervals, temp_labels = generate_intervals_labels('Temperature(F)', 9, 30)
 Feature_Bin_Plot(df, 'Temperature(F)', 'gist_ncar', temp_intervals, temp_labels,
                  (12, 6), 14, (-20000, 800000), [0.01, 10000], '\nPercentage of different Temperature range\n')
 
 
+# 不同濕度範圍的百分比
 Humidity_intervals, Humidity_labels = generate_intervals_labels('Humidity(%)', 10, 10)
-
 Feature_Bin_Plot(df, 'Humidity(%)', 'magma', Humidity_intervals, Humidity_labels,
                  (12, 6), 14, (-20000, 500000), [0.01, 10000], '\nPercentage of different Humidity range\n')
+
+# 不同壓力範圍的百分比
+Pressure_intervals, Pressure_labels = generate_intervals_labels('Pressure(in)', 6, 10)
+Feature_Bin_Plot(df, 'Pressure(in)', 'Paired', Pressure_intervals, Pressure_labels,
+                 (12, 6), 14, (-20000, 1500000), [0.01, 10000], '\nPercentage of different Pressure range\n')
