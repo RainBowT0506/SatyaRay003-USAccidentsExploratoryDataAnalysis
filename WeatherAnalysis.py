@@ -141,3 +141,8 @@ Feature_Bin_Plot(df, 'Pressure(in)', 'Paired', Pressure_intervals, Pressure_labe
 Wind_Chill_intervals, Wind_Chill_labels = generate_intervals_labels('Wind_Chill(F)', 10, 20)
 Feature_Bin_Plot(df, 'Wind_Chill(F)', 'inferno', Wind_Chill_intervals, Wind_Chill_labels,
                  (12, 6), 14, (-20000, 700000), [0.01, 10000], '\nPercentage of different Wind Chill range\n')
+
+# 不同風速範圍的百分比
+Wind_Speed_intervals, Wind_Speed_labels = generate_intervals_labels('Wind_Speed(mph)', 10, 5)
+Feature_Bin_Plot(df, 'Wind_Speed(mph)', 'turbo',Wind_Speed_intervals, Wind_Speed_labels,
+                 (12, 6), 14, (-20000, 900000), [0.01, 10000], '\nPercentage of different Wind Speed range\n')
