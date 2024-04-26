@@ -37,7 +37,11 @@ df = pd.read_csv('small_data.csv', encoding='ISO-8859-1')
 # create a dataframe of Severity and the corresponding accident cases
 severity_df = pd.DataFrame(df['Severity'].value_counts()).rename(columns={'count': 'Cases'})
 print(severity_df.columns)
+states = gpd.read_file('Shapefiles/States_shapefile.shp')
+geometry = [Point(xy) for xy in zip(df['Start_Lng'], df['Start_Lat'])]
+geo_df = gpd.GeoDataFrame(df, geometry=geometry)
 
+# 事故對交通的影響
 def visualize_traffic_impact_due_to_accidents():
     fig = go.Figure(go.Funnelarea(
         text=["Severity - 2", "Severity - 3", "Severity - 4", "Severity - 1"],
@@ -51,4 +55,35 @@ def visualize_traffic_impact_due_to_accidents():
 
     fig.show()
 
-visualize_traffic_impact_due_to_accidents()
+def visualize_severity_levels_on_US_map():
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.set_xlim([-125, -65])
+    ax.set_ylim([22, 55])
+    states.boundary.plot(ax=ax, color='black');
+
+    geo_df[geo_df['Severity'] == 1].plot(ax=ax, markersize=50, color='#5cff4a', marker='o', label='Severity 1');
+    geo_df[geo_df['Severity'] == 3].plot(ax=ax, markersize=10, color='#ff1c1c', marker='x', label='Severity 3');
+    geo_df[geo_df['Severity'] == 4].plot(ax=ax, markersize=1, color='#6459ff', marker='v', label='Severity 4');
+    geo_df[geo_df['Severity'] == 2].plot(ax=ax, markersize=5, color='#ffb340', marker='+', label='Severity 2');
+
+    for i in ['bottom', 'top', 'left', 'right']:
+        side = ax.spines[i]
+        side.set_visible(False)
+
+    plt.tick_params(top=False, bottom=False, left=False, right=False,
+                    labelleft=False, labelbottom=False)
+
+    plt.title('\nDifferent level of Severity visualization in US map', size=20, color='grey');
+
+    One = mpatches.Patch(color='#5cff4a', label='Severity 1')
+    Two = mpatches.Patch(color='#ffb340', label='Severity 2')
+    Three = mpatches.Patch(color='#ff1c1c', label='Severity 3')
+    Four = mpatches.Patch(color='#6459ff', label='Severity 4')
+
+    ax.legend(handles=[One, Two, Three, Four], prop={'size': 15}, loc='lower right', borderpad=1,
+              labelcolor=['#5cff4a', '#ffb340', '#ff1c1c', '#6459ff'], edgecolor='white');
+    plt.show()
+
+# visualize_traffic_impact_due_to_accidents()
+
+visualize_severity_levels_on_US_map()
