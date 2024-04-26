@@ -40,6 +40,7 @@ day_df = pd.DataFrame(df.Start_Time.dt.day_name().value_counts()).reset_index().
     columns={'Start_Time': 'Day', 'count': 'Cases'})
 
 
+# 一週內不同日期的道路事故百分比
 def visualize_weekly_accident_distribution():
     fig, ax = plt.subplots(figsize=(12, 6), dpi=80)
 
