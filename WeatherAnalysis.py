@@ -69,7 +69,7 @@ def Feature_Bin_Plot(dataframe, attribute, clrs, intervals, labels, fig_size, fo
     xlabel = 'Different {} Grouped Value'.format(attribute)
     new_df[xlabel] = pd.cut(x=new_df[attribute], bins=intervals, labels=labels, include_lowest=True)
     temp_df = pd.DataFrame(new_df[xlabel].value_counts()).reset_index() \
-        .rename(columns={'Different Temperature(F) Grouped Value': 'Bins', 'count': 'Cases'}).sort_values('Bins')
+        .rename(columns={ xlabel : 'Bins', 'count': 'Cases'}).sort_values('Bins')
 
     print(temp_df.columns)
 
@@ -123,3 +123,9 @@ print(temp_labels)
 # 不同溫度範圍的百分比
 Feature_Bin_Plot(df, 'Temperature(F)', 'gist_ncar', temp_intervals, temp_labels,
                  (12, 6), 14, (-20000, 800000), [0.01, 10000], '\nPercentage of different Temperature range\n')
+
+
+Humidity_intervals, Humidity_labels = generate_intervals_labels('Humidity(%)', 10, 10)
+
+Feature_Bin_Plot(df, 'Humidity(%)', 'magma', Humidity_intervals, Humidity_labels,
+                 (12, 6), 14, (-20000, 500000), [0.01, 10000], '\nPercentage of different Humidity range\n')
